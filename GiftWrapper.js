@@ -5,6 +5,7 @@ class GiftWrapper {
         generationsNumber,
         subjectsNumber,
         mutatingRate,
+        maximumArea,
         gifts,
         xThreshold,
         yThreshold
@@ -12,6 +13,7 @@ class GiftWrapper {
         this.generationsNumber = generationsNumber;
         this.mutatingRate = mutatingRate;
         this.subjectsNumber = subjectsNumber;
+        this.maximumArea = maximumArea;
         this.generation = [];
         this.gifts = gifts;
         this.xThreshold = xThreshold;
@@ -85,7 +87,7 @@ class GiftWrapper {
         let pointsInsideCount = Wrapper.checkPoints(wrapper, this.gifts).length;
         let pointsCount = this.gifts.length;
 
-        if (area > 30000) {
+        if (area > this.maximumArea) {
             return 0;
         }
 
@@ -114,7 +116,7 @@ class GiftWrapper {
 
         return scores;
     }
-    async run() {
+    async run(timeBetweenGenerations, finishedCallback) {
         for (let i = 0; i < this.subjectsNumber; i++) {
             let wrapper = Wrapper.createRandom(
                 this.xThreshold,
@@ -146,6 +148,13 @@ class GiftWrapper {
                 CanvasHelper.instance().point(gift.x, gift.y);
             });
 
+            if (timeBetweenGenerations) {
+                const time = timeBetweenGenerations();
+                if (time !== 0) {
+                    await sleep(time);
+                }
+            }
+
             // CanvasHelper.instance().wrapper(newGeneration[0], i);
             // let pointsInsidePolygon = Wrapper.checkPoints(
             //     newGeneration[0],
@@ -159,6 +168,10 @@ class GiftWrapper {
             //         true
             //     );
             // }
+        }
+
+        if (finishedCallback) {
+            finishedCallback();
         }
 
         console.log("Area: " + Wrapper.calculateArea(this.generation[0]));
